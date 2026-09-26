@@ -5,6 +5,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import ru.magnum.messenger.presentation.auth.AuthScreen
+import ru.magnum.messenger.presentation.splash.SplashScreen
 
 @Composable
 fun AppNavGraph(){
@@ -12,8 +13,31 @@ fun AppNavGraph(){
 
     NavHost(
         navController = navController,
-        startDestination = Screen.Auth
+        startDestination = Screen.Splash
     ) {
+        composable<Screen.Splash> {
+            SplashScreen(
+                onAuthorized = {
+                    navController.navigate(Screen.Chat) {
+                        popUpTo(
+                            Screen.Splash
+                        ) {
+                            inclusive = true
+                        }
+                    }
+                },
+                onUnauthorized = {
+                    navController.navigate(Screen.Auth) {
+                        popUpTo(
+                            Screen.Splash
+                        ) {
+                            inclusive = true
+                        }
+                    }
+                }
+            )
+        }
+
         composable<Screen.Auth> {
             AuthScreen(
                 onSuccess = {

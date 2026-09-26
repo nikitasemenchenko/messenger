@@ -39,4 +39,8 @@ class AuthRepositoryImpl @Inject constructor(
 
     }
 
+    override fun getCurrentUser(): User? {
+        return firebaseAuthService.getCurrentUser()?.toDomain()
+    }
+
 }

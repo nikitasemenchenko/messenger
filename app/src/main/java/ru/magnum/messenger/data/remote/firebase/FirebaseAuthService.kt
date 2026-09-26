@@ -31,4 +31,8 @@ class FirebaseAuthService @Inject constructor(
             .await()
             .user!!
     }
+
+    fun getCurrentUser(): FirebaseUser? {
+        return firebaseAuth.currentUser
+    }
 }
