@@ -7,13 +7,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import ru.magnum.messenger.domain.usecase.LoginUseCase
-import ru.magnum.messenger.domain.usecase.RegisterUseCase
+import ru.magnum.messenger.domain.usecase.RegisterUserUseCase
 import javax.inject.Inject
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
-    private val registerUseCase: RegisterUseCase
+    private val registerUserUseCase: RegisterUserUseCase
 ): ViewModel() {
     private val _state = MutableStateFlow(AuthUiState())
     val state = _state.asStateFlow()
@@ -76,9 +76,10 @@ class AuthViewModel @Inject constructor(
                 errorMessage = null
             )
 
-            val result = registerUseCase(
+            val result = registerUserUseCase(
                 _state.value.email,
-                _state.value.password
+                _state.value.password,
+                _state.value.email.substringBefore("@")
             )
             result.onSuccess {
                 _state.value = _state.value.copy(
