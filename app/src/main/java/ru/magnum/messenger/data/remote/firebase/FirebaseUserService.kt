@@ -39,4 +39,18 @@ class FirebaseUserService @Inject constructor(
             createdAt = dto.getLong("createdAt") ?: 0L
         )
     }
+
+    suspend fun getUsers(): List<UserProfile> {
+        val dto = firestore.collection("users").get().await()
+
+        return dto.documents.map { document ->
+            UserProfile(
+                uid = document.getString("uid") ?: "",
+                email = document.getString("email") ?: "",
+                username = document.getString("username") ?: "",
+                avatarUrl = document.getString("avatarUrl"),
+                createdAt = document.getLong("createdAt") ?: 0L
+            )
+        }
+    }
 }

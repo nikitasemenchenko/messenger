@@ -11,5 +11,10 @@ sealed interface Screen {
     data object Auth: Screen
 
     @Serializable
-    data object Chat: Screen
+    data object Users: Screen
+
+    @Serializable
+    data class Chat(
+        val chatId: String
+    ): Screen
 }
