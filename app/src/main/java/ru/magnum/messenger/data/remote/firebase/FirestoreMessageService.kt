@@ -1,9 +1,10 @@
 package ru.magnum.messenger.data.remote.firebase
 
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
+import com.google.firebase.firestore.ListenerRegistration
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import ru.magnum.messenger.domain.model.Message
 import javax.inject.Inject
@@ -30,17 +31,17 @@ class FirestoreMessageService @Inject constructor(
             .await()
     }
 
-    fun getMessages(
-        chatId: String
-    ): Flow<List<Message>> = callbackFlow {
-        val listener = firestore
+    fun observeMessages(
+        chatId: String,
+        onUpdate: suspend (List<Message>) -> Unit
+    ): ListenerRegistration {
+        return firestore
             .collection("chats")
             .document(chatId)
             .collection("messages")
             .orderBy("createdAt")
             .addSnapshotListener { snapshot, exception ->
                 if(exception != null){
-                    close(exception)
                     return@addSnapshotListener
                 }
 
@@ -55,10 +56,11 @@ class FirestoreMessageService @Inject constructor(
                         )
                     }
                     ?: emptyList()
-                trySend(messages)
+                CoroutineScope(
+                    Dispatchers.IO
+                ).launch {
+                    onUpdate(messages)
+                }
             }
-        awaitClose {
-            listener.remove()
-        }
     }
 }

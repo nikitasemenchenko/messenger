@@ -12,4 +12,8 @@ interface MessageRepository {
         chatId: String,
         message: Message
     ): Result<Unit>
+
+    fun syncMessages(
+        chatId: String
+    )
 }

@@ -11,6 +11,7 @@ import ru.magnum.messenger.domain.model.Message
 import ru.magnum.messenger.domain.usecase.GetCurrentUserUseCase
 import ru.magnum.messenger.domain.usecase.GetMessagesUseCase
 import ru.magnum.messenger.domain.usecase.SendMessageUseCase
+import ru.magnum.messenger.domain.usecase.SyncMessagesUseCase
 import java.util.UUID
 import javax.inject.Inject
 
@@ -18,7 +19,8 @@ import javax.inject.Inject
 class ChatViewModel @Inject constructor(
     private val getMessagesUseCase: GetMessagesUseCase,
     private val sendMessageUseCase: SendMessageUseCase,
-    private val getCurrentUserUseCase: GetCurrentUserUseCase
+    private val getCurrentUserUseCase: GetCurrentUserUseCase,
+    private val syncMessagesUseCase: SyncMessagesUseCase
 ): ViewModel() {
     private val _state = MutableStateFlow(ChatUiState())
     val state = _state.asStateFlow()
@@ -28,6 +30,8 @@ class ChatViewModel @Inject constructor(
     fun observeMessages(
         chatId: String
     ) {
+        syncMessagesUseCase(chatId)
+
         messagesJob?.cancel()
         messagesJob =
             viewModelScope.launch {
