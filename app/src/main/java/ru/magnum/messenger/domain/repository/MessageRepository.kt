@@ -16,4 +16,5 @@ interface MessageRepository {
     fun syncMessages(
         chatId: String
     )
+
 }

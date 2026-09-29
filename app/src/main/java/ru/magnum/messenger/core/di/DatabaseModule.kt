@@ -24,7 +24,9 @@ object DatabaseModule {
             context,
             AppDatabase::class.java,
             "messenger_database"
-        ).build()
+        )
+            .fallbackToDestructiveMigration()
+            .build()
     }
 
     @Provides

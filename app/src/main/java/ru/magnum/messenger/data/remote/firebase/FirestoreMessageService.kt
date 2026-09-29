@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import ru.magnum.messenger.domain.model.Message
+import ru.magnum.messenger.domain.model.MessageStatus
 import javax.inject.Inject
 
 class FirestoreMessageService @Inject constructor(
@@ -25,7 +26,8 @@ class FirestoreMessageService @Inject constructor(
                 mapOf(
                     "senderId" to message.senderId,
                     "text" to message.text,
-                    "createdAt" to message.createdAt
+                    "createdAt" to message.createdAt,
+                    "status" to message.status.name
                 )
             )
             .await()
@@ -52,7 +54,10 @@ class FirestoreMessageService @Inject constructor(
                             id = document.id,
                             senderId = document.getString("senderId") ?: "",
                             text = document.getString("text") ?: "",
-                            createdAt = document.getLong("createdAt") ?: 0L
+                            createdAt = document.getLong("createdAt") ?: 0L,
+                            status = MessageStatus.valueOf(
+                                document.getString("status") ?: "SENT"
+                            )
                         )
                     }
                     ?: emptyList()

@@ -11,6 +11,7 @@ import ru.magnum.messenger.data.local.room.mapper.toDomain
 import ru.magnum.messenger.data.local.room.mapper.toEntity
 import ru.magnum.messenger.data.remote.firebase.FirestoreMessageService
 import ru.magnum.messenger.domain.model.Message
+import ru.magnum.messenger.domain.model.MessageStatus
 import ru.magnum.messenger.domain.repository.MessageRepository
 import javax.inject.Inject
 
@@ -32,10 +33,29 @@ class MessageRepositoryImpl @Inject constructor(
         chatId: String,
         message: Message
     ): Result<Unit> {
+        val sendingMessage =  message.copy(
+            status = MessageStatus.SENDING
+        )
+
+        messageDao.insertMessage(
+            sendingMessage.toEntity(chatId)
+        )
+
         return try {
-            service.sendMessage(chatId, message)
+            service.sendMessage(
+                chatId,
+                sendingMessage
+            )
+            messageDao.updateStatus(
+                messageId = message.id,
+                status = MessageStatus.SENT.name
+            )
             Result.success(Unit)
-        } catch (e: Exception) {
+        } catch (e: Exception){
+            messageDao.updateStatus(
+                messageId = message.id,
+                status = MessageStatus.FAILED.name
+            )
             Result.failure(e)
         }
     }

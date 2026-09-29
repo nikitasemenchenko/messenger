@@ -4,5 +4,6 @@ data class Message(
     val id: String,
     val senderId: String,
     val text: String,
-    val createdAt: Long
+    val createdAt: Long,
+    val status: MessageStatus = MessageStatus.SENDING
 )

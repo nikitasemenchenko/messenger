@@ -9,5 +9,15 @@ data class MessageEntity(
     val chatId: String,
     val senderId: String,
     val text: String,
+    val createdAt: Long,
+    val status: String
+)
+
+@Entity(tableName = "pending_messages")
+data class PendingMessageEntity(
+    @PrimaryKey val id: String,
+    val chatId: String,
+    val senderId: String,
+    val text: String,
     val createdAt: Long
 )

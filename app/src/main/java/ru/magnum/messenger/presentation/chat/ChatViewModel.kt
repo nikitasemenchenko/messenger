@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import ru.magnum.messenger.domain.model.Message
+import ru.magnum.messenger.domain.model.MessageStatus
 import ru.magnum.messenger.domain.usecase.GetCurrentUserUseCase
 import ru.magnum.messenger.domain.usecase.GetMessagesUseCase
 import ru.magnum.messenger.domain.usecase.SendMessageUseCase
@@ -69,7 +70,8 @@ class ChatViewModel @Inject constructor(
                 id = UUID.randomUUID().toString(),
                 senderId = user.id,
                 text = text,
-                createdAt = System.currentTimeMillis()
+                createdAt = System.currentTimeMillis(),
+                status = MessageStatus.SENDING
             )
 
             sendMessageUseCase(
