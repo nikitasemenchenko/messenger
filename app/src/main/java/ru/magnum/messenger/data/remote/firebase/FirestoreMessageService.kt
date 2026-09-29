@@ -1,10 +1,9 @@
 package ru.magnum.messenger.data.remote.firebase
 
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ListenerRegistration
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import ru.magnum.messenger.domain.model.Message
 import ru.magnum.messenger.domain.model.MessageStatus
@@ -16,7 +15,7 @@ class FirestoreMessageService @Inject constructor(
     suspend fun sendMessage(
         chatId: String,
         message: Message
-    ){
+    ) {
         firestore
             .collection("chats")
             .document(chatId)
@@ -34,38 +33,34 @@ class FirestoreMessageService @Inject constructor(
     }
 
     fun observeMessages(
-        chatId: String,
-        onUpdate: suspend (List<Message>) -> Unit
-    ): ListenerRegistration {
-        return firestore
+        chatId: String
+    ): Flow<List<Message>> = callbackFlow {
+        val listener = firestore
             .collection("chats")
             .document(chatId)
             .collection("messages")
-            .orderBy("createdAt")
-            .addSnapshotListener { snapshot, exception ->
-                if(exception != null){
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    close(error)
                     return@addSnapshotListener
                 }
 
-                val messages = snapshot
-                    ?.documents
-                    ?.map { document ->
-                        Message(
-                            id = document.id,
-                            senderId = document.getString("senderId") ?: "",
-                            text = document.getString("text") ?: "",
-                            createdAt = document.getLong("createdAt") ?: 0L,
-                            status = MessageStatus.valueOf(
-                                document.getString("status") ?: "SENT"
+                val messages =
+                    snapshot?.documents
+                        ?.map {
+                            Message(
+                                id = it.id,
+                                senderId = it.getString("senderId") ?: "",
+                                text = it.getString("text") ?: "",
+                                createdAt = it.getLong("createdAt") ?: 0L,
+                                status = MessageStatus.valueOf(it.getString("status") ?: "SENT")
                             )
-                        )
-                    }
-                    ?: emptyList()
-                CoroutineScope(
-                    Dispatchers.IO
-                ).launch {
-                    onUpdate(messages)
-                }
+                        }
+                        ?: emptyList()
+                trySend(messages)
             }
+        awaitClose {
+            listener.remove()
+        }
     }
 }

@@ -4,16 +4,17 @@ import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
 import ru.magnum.messenger.data.local.room.dao.PendingMessageDao
 import ru.magnum.messenger.data.remote.firebase.FirestoreMessageService
 import ru.magnum.messenger.domain.model.Message
 import ru.magnum.messenger.domain.model.MessageStatus
-import javax.inject.Inject
 
 @HiltWorker
-class MessageSyncWorker @Inject constructor(
-    appContext: Context,
-    workerParameters: WorkerParameters,
+class MessageSyncWorker @AssistedInject constructor(
+    @Assisted appContext: Context,
+    @Assisted workerParameters: WorkerParameters,
     private val pendingDao: PendingMessageDao,
     private val messageService: FirestoreMessageService
 ): CoroutineWorker(
