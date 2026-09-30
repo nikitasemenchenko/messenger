@@ -3,12 +3,12 @@ package ru.magnum.messenger.domain.usecase
 import ru.magnum.messenger.domain.repository.MessageRepository
 import javax.inject.Inject
 
-class SyncMessagesUseCase @Inject constructor(
+class RetryMessageUseCase @Inject constructor(
     private val repository: MessageRepository
 ) {
     suspend operator fun invoke(
-        chatId: String
-    ) {
-        repository.syncMessages(chatId)
+        messageId: String
+    ): Result<Unit> {
+        return repository.retryMessage(messageId)
     }
 }

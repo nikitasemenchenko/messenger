@@ -9,6 +9,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import ru.magnum.messenger.data.local.room.AppDatabase
 import ru.magnum.messenger.data.local.room.dao.MessageDao
+import ru.magnum.messenger.data.local.room.dao.PendingMessageDao
 import javax.inject.Singleton
 
 @Module
@@ -35,5 +36,13 @@ object DatabaseModule {
         database: AppDatabase
     ): MessageDao {
         return database.messageDao()
+    }
+
+    @Provides
+    @Singleton
+    fun providePendingMessageDao(
+        database: AppDatabase
+    ): PendingMessageDao {
+        return database.pendingMessageDao()
     }
 }

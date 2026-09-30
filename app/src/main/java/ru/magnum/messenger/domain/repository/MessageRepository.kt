@@ -13,7 +13,13 @@ interface MessageRepository {
         message: Message
     ): Result<Unit>
 
-    fun syncMessages(
+    // Повторная отправка сообщения со статусом FAILED
+    suspend fun retryMessage(
+        messageId: String
+    ): Result<Unit>
+
+    // Слушает сервер и складывает сообщения в локальную БД.
+    suspend fun syncMessages(
         chatId: String
     )
 
